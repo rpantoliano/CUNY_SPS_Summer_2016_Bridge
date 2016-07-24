@@ -1,0 +1,86 @@
+---
+title: "SPS Week 2 R Assignment"
+author: "Richard Pantoliano Jr"
+date: "July 24, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+## Implementing Factorial Recursively
+Computes the value of n! recursively.
+```{r recursive_factorial}
+recursive_factorial <- function(input){
+  if (input == 0) return(1)
+  else return (input * recursive_factorial(input - 1))
+}
+```
+Test examples:
+```{r }
+  recursive_factorial(0)
+  recursive_factorial(1)
+  recursive_factorial(2)
+  recursive_factorial(3)
+  recursive_factorial(4)
+  recursive_factorial(15)
+
+```
+
+
+## Implementing Factorial Iteratively
+Computes the value of n! iteratively.
+```{r iterative_factorial}
+iterative_factorial <- function(input){
+  index <- input
+  accumulator <- 1
+  while (index > 0)
+  {
+    accumulator <- accumulator * index
+    index <- index - 1
+  }
+  return(accumulator)
+}
+```
+Test examples:
+```{r }
+  iterative_factorial(0)
+  iterative_factorial(1)
+  iterative_factorial(2)
+  iterative_factorial(3)
+  iterative_factorial(4)
+  iterative_factorial(15)
+
+```
+
+## Using iterative_factorial and recursive_factorial to implement Combinations
+The two functions defined below, iterative_choose and recursive_choose, make use of the iterative and recursive factorial functions to implement combinations.  Like the factorial functions, the choose functions should produce the same results
+
+```{r iterative_choose}
+iterative_choose <-function(elements, combination)
+{
+  return(iterative_factorial(elements) / (iterative_factorial(combination) * iterative_factorial(elements - combination) ) )
+}
+```
+
+```{r recursive_choose}
+recursive_choose<-function(elements, combination)
+{
+  return(recursive_factorial(elements) / (recursive_factorial(combination) * recursive_factorial(elements - combination) ) )
+}
+```
+
+Test examples:
+```{r }
+  recursive_choose(5,2)
+  iterative_choose(5,2)
+  
+  recursive_choose(10,1)
+  iterative_choose(10,1)
+  
+  recursive_choose(3,3)
+  iterative_choose(3,3)
+
+```
