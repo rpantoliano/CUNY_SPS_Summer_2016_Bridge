@@ -1,0 +1,244 @@
+---
+title: "Week 2 Data Math Homework"
+author: "Richard Pantoliano Jr"
+date: "July 24, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Problem 1
+P(pulling 505) = 1/540
+
+## Problem 2
+AEF, AEV, ATF, ATV,
+CEF, CEV, CTF, CTV
+
+## Problem 3
+P(Heart) = 13/52
+P(heart and !face) = 13/52 - 3/52 = 10/52 = 5/26
+
+## Problem 4
+P(sum < 6) = P(sum= 1) + P(sum= 2) + P(sum= 3) + P(sum= 4) + P(sum = 5)
+          = 0 + 1/36 + 2/36 + 3/36 +  4/36
+          = 10/36
+          = 5/18
+          
+## Problem 5
+```{r pmale}
+males <- sum(233,159,102,220,250)
+females <- sum(208,138,280,265,146)
+pmale <- males / (females + males)
+print(round(pmale, 4) )
+```
+
+## Problem 6
+P(club, black card, face card) = 1/4 * 1/2 * 3/13 = 3/104
+
+## Problem 7
+P(spade | heart drawn first) = 13/51
+        
+## Problem 8
+P(red | heart) = 12/51
+        
+## Problem 9
+```{r}
+total <- sum(12, 19, 12, 7, 12, 15, 4, 4)
+print(( round(12 / (total - 1), 4 ) ) )
+```
+
+## Problem 10
+Step 1: P(male and graduate degree) = 52 / 141
+
+Step 2: P(male | graduate degree) = 52 / 102 = 26/51
+
+## Problem 11
+Number of Packages = 6 * 5 * 3 = 90
+
+## Problem 12
+Number of visits = 5! = 5 * 4 * 3 * 2 * 1 = 120
+
+## Problem 13
+Number of lineups = P(8,5) =
+```{r perm}
+perm <- function(n, k){choose(n, k ) * factorial(k ) }
+print(perm(8, 5 ) )
+```
+
+
+## Problem 14
+```{r}
+print(choose(9,5) + choose(9,3) + choose(9,5) + choose(9,1))
+```
+
+## Problem 15
+Number of 6 combinations of 14 toppings = C(14, 6)
+```{r}
+print(choose(14, 6 ) )
+```
+
+## Problem 16
+Number of 3 card combinations drawn = C(52, 3)
+```{r}
+print(choose(52, 3 ) )
+```
+
+## Problem 17
+Number of theater systems = 12 tvs * 9 sound systems * 5 dvd players = 540
+
+## Problem 18
+Number of passwords = P(26,5) * P(10,3)
+```{r}
+print(perm(26, 5 ) * perm(10, 3 ) )
+```
+
+## Problem 19
+P(9,4)
+```{r}
+print(perm(9, 4 ) )
+```
+
+## Problem 20
+C(11,8)
+```{r}
+print(choose(11, 8 ) )
+```
+
+## Problem 21
+P(12,8) / C(12,4)
+```{r}
+print(perm( 12, 8) / choose(12, 4 ))
+```
+
+## Problem 22
+P(13, 7)
+```{r}
+print( perm(13,7 ) )
+```
+
+## Problem 23
+Since the problem capitalizes the first 'p' in "Population", I will treat them as distinct from one another. Given that, 
+P(10,10) = 10!
+```{r}
+print(factorial(10 ) )
+```
+
+##Problem 24
+Step 1: Find the expected value
+```{r x px mu}
+x <- c(5, 6, 7, 8, 9 )
+px <- c(.1, .2, .3, .2, .2)
+mu <- sum( x * px )
+print(mu)
+```
+
+Step 2: Find the variance
+```{r setvar}
+setvar <- sum( (x - mu ) ^ 2 * px )
+print(setvar)
+```
+
+Step 3: Find the standard deviation
+```{r setstddev}
+setstddev <- sqrt(setvar)
+print(round(setstddev, 1 ) )
+```
+
+Step 4: Find value of P(X>=9)
+P(X>=9) = .2
+
+Step 5: Find P(X <= 7)
+P(X <= 7) = .1 + .2 + .3 = .6
+
+## Problem 25
+Step 1: Find the expected value
+
+```{r exptvalue}
+exptvalue <- 23 * 188 / 376 - 4 * (376 - 188 ) / 376 
+print(round(exptvalue, 2))
+
+```
+
+Step 2: Repeat experiment 994
+```{r}
+print(round(994 * exptvalue,2))
+
+```
+
+## Problem 26
+Step 1:
+```{r}
+success <-pbinom(8,11,.5)
+print(round(1 * success - 7 * (1-success), 2))
+```
+Step 2:
+```{r}
+print(round(632 *(1 * success - 7 * (1 - success ) ), 2))
+```
+
+
+## Problem 27
+Step 1:
+```{r exptvalue1}
+exptvalue1 <- 583 * 12 / 51 - 35 * 39 / 51 
+print(round(exptvalue1, 2))
+
+```
+
+Step 2:
+```{r}
+print(round(632 * exptvalue1,2))
+
+```
+
+
+
+## Problem 28
+Modeling using the binomial distribution
+```{r}
+print(round(1 - pbinom(2, 10, .3 ), 3 ) )
+```
+
+## Problem 29
+```{r}
+print(5 * .3 )
+```
+
+## Problem 30
+P(> 5) = 1 - P(=<5)
+```{r}
+print(round(1 - ppois(5, 5.5), 3))
+```
+
+## Problem 31
+P(> 4) = 1 - P(<=3)
+```{r}
+print(round(1 - ppois(3, 5.7), 4))
+```
+
+## Problem 32
+P(<=1)
+```{r}
+print(round(pbinom(1, 7, .4), 4))
+```
+
+## Problem 33
+P(> 1) = 1 - P(<=1) = 1 - (P(0) + P(1))
+```{r}
+print( round(1 - ( perm(19, 8 ) + 19 * perm(19, 7 ) ) / perm (25, 8 ), 3))
+```
+
+## Problem 34
+P(<7)
+```{r}
+print(round(pbinom(6, 8, .4), 3))
+```
+
+
+
+
+
+
+
