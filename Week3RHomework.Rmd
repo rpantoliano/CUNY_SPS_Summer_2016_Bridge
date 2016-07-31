@@ -1,0 +1,80 @@
+---
+title: "Week 3 R Homework Assignment"
+author: "Richard Pantoliano Jr"
+date: "July 31, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+## Transforming the Mushroom Dataset
+We were assigned the task of transforming the CSV data located at https://archive.ics.uci.edu/ml/datasets/Mushroom using R.  Specifically, the code must:
+
+1. pull the dataset from the Internet
+2. transform the CSV data into a frame
+3. create a subset of the data, including the "Class" column and 3-4 other columns
+4. give meaningful names to the columns of the subset
+5. replace the coded data in each column with the meaning contained within the dictionary for the dataset
+
+## Pulling the dataset from the Internet
+I used the RCurl library to pull the dataset from my personal Github repo.
+
+```{r mushroom_data}
+#install.packages("RCurl")
+require(RCurl)
+url <- "https://raw.githubusercontent.com/rpantoliano/CUNY_SPS_assignments/master/agaricus-lepiota.data"
+mushroom_data <- getURL(url)
+```
+
+## Transform the CSV Data into a Data Frame
+Following the download of the data, I used the read.table function to convert the CSV data into a data frame.  The parameters indicate that a text stream is being used as input instead of a file, that there is no header row, and that the separator for the data is a comma
+```{r mushroom_df}
+mushroom_df <- read.table(text=mushroom_data, header = FALSE, sep = ",")
+head(mushroom_df)
+```
+
+## Create a Subset of the Data
+I chose the columns V1, V3, V5, V11, and V17 from the dataset.  Using the subset function, I selected those columns by name to create a new data frame with only those columns.
+```{r mushroom_ss}
+mushroom_ss = subset(mushroom_df, select=c("V1","V3", "V5", "V11", "V17"))
+head(mushroom_ss)
+```
+
+## Give the Columns Meaningful Names
+Since there was no header to give names to the columns of the dataset, R gave the names V1:V23.  We will replace the names of the columns we selected with the names given in the data dictionary by using the rename function from the plyr library.
+```{r}
+#install.packages("plyr")
+require(plyr)
+
+mushroom_ss <- rename(mushroom_ss,
+                      c("V1" = "Class",
+                        "V3" = "Cap Surface",
+                        "V5" = "Bruised",
+                        "V11" = "Stalk Shape",
+                        "V17" = "Veil Type"))
+head(mushroom_ss)
+```
+
+## Replace the Coded Data
+The CSV used single character codes for each type of data associated with each mushroom possibility.  Using the data dictionary included with the data, I used the sub function to replace each character code in each column with the associated descriptive information
+```{r}
+mushroom_ss$Class <- sub('^e$', "Edible", mushroom_ss$Class)
+mushroom_ss$Class <- sub('^p$', "Poisonous", mushroom_ss$Class)
+
+mushroom_ss$`Cap Surface` <- sub('^f$', "fibrous", mushroom_ss$'Cap Surface')
+mushroom_ss$`Cap Surface` <- sub('^g$', "grooves", mushroom_ss$'Cap Surface')
+mushroom_ss$`Cap Surface` <- sub('^y$', "scaly", mushroom_ss$'Cap Surface')
+mushroom_ss$`Cap Surface` <- sub('^s$', "smooth", mushroom_ss$'Cap Surface')
+
+mushroom_ss$Bruised <- sub('^t$', "bruised", mushroom_ss$Bruised)
+mushroom_ss$Bruised <- sub('^f$', "no", mushroom_ss$Bruised)
+
+mushroom_ss$`Stalk Shape` <- sub('^t$', "tapering", mushroom_ss$`Stalk Shape`)
+mushroom_ss$`Stalk Shape` <- sub('^e$', "enlarging", mushroom_ss$`Stalk Shape`)
+
+mushroom_ss$`Veil Type` <- sub('^p$', "partial", mushroom_ss$`Veil Type`)
+mushroom_ss$`Veil Type` <- sub('^u$', "universal", mushroom_ss$`Veil Type`)
+
+head(mushroom_ss, n = 20)
+```
