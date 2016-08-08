@@ -1,0 +1,85 @@
+---
+title: "Week 4 R Homework Assignment"
+author: "Richard Pantoliano Jr"
+date: "August 7, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Analyzing Electricity Rates
+The following data was taken from the U.S. Federal Government's Open Data Website at <https://catalog.data.gov/dataset/u-s-electric-utility-companies-and-rates-look-up-by-zipcode-2013>.  Specifically, this data shows commercial, residential, and industrial electricity rates, by zip code across the USA.
+
+The following code loads the necessary libraries into memory, pulls down a copy of the data from my own repository, and loads that data into a data frame.
+
+```{r elec_df}
+#install.packages("RCurl")
+#install.packages("plyr")
+
+require(RCurl)
+require(plyr)
+
+url <- "https://raw.githubusercontent.com/rpantoliano/CUNY_SPS_assignments/master/iouzipcodes2013.csv"
+
+elec_data <- getURL(url)
+elec_df <- read.csv(text=elec_data, header = TRUE, sep = ",")
+```
+## Comparing Commercial vs Residential rates
+```{r echo=FALSE}
+plot(elec_df$comm_rate, elec_df$res_rate, main="Comparison of Electrical Rates\n Commercial vs Residential", xlab="Commercial Rate", ylab="Residential Rate", las=1)
+abline(lm(elec_df$comm_rate~elec_df$res_rate), col=4)
+
+```
+
+From this scatter plot, we can see that there is a positive correlation between the rates for commercial and residential electricity. The calculated correlation coefficient bares this out:
+```{r}
+cor(elec_df$comm_rate, elec_df$res_rate)
+```
+
+
+Below are the histograms for commercial and residential electrical rates:
+
+```{r  echo = FALSE}
+hist(elec_df$comm_rate,
+     main = "Histogram of Commercial Electrical Rates",
+     xlab = "Commercial Rate in kwh",
+     ylab = "Frequency",
+     las=1)
+```
+
+```{r echo = FALSE}
+hist(elec_df$res_rate,
+     main = "Histogram of Residential Electrical Rates",
+     xlab = "Residential Rate in kwh",
+     ylab = "Frequency",
+     las=1)
+```
+
+These graphs indicate that residential rates are far more frequently higher than commercial rates.  That is, residential rates are mostly above $ .10 per kwh while most commercial rates are at or below $ .10 per kwh.
+
+
+## Electrical Rates in NY
+Below is a box plot of Commercial Electrical Rates in NY State.
+```{r nydata, echo = FALSE}
+nydata <- subset(elec_df, state=="NY")
+boxplot(nydata$comm_rate,
+        main = "Boxplot of Commercial Electrical Rates in NY", 
+        xlab = "Commercial",
+        ylab="Rate in kwh")
+```
+
+Below is a box plot of Residential Electrical Rates in NY State.
+```{r echo = FALSE}
+nydata <- subset(elec_df, state=="NY")
+boxplot(nydata$res_rate,
+        main = "Boxplot of Residential Electrical Rates in NY", 
+        xlab = "Residential",
+        ylab="Rate in kwh")
+
+```
+
+These two graphs show that the mean and max residential rates for electricity are higher than those rates for commercial electricity
+
+
