@@ -1,0 +1,96 @@
+---
+title: "SPS Summ 2016 R Final Project - Polution in Switzerland"
+author: "Richard Pantoliano Jr"
+date: "August 14, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+The following is a brief analysis of the dataset "AirQual" from the package SwissAir.  The dataset includes measurements of the air polutants O3, NO, and NOx at three separate locations in Switzerland at 30 minute intervals for all of 2004.
+
+```{r}
+#install.packages("SwissAir")
+require(SwissAir)
+data("AirQual")
+```
+
+## Data Transformation
+The following transformation accomplishes three tasks:
+
+* Split the data into weather info (location_weather) and polutant concentration (location_concentration) data frames
+* Convert weather info from metric to imperial units (e.g. C to F, m/s to mph)
+* Provide basic statistical info about the weather at each of the three locations and plot that info
+
+```{r}
+location_weather <- subset(AirQual,
+                           select = c("ad.T", "ad.Td", "ad.WS",
+                                      "lu.T", "lu.Td", "lu.WS",
+                                      "sz.T", "sz.Td", "sz.WS")
+                           )
+
+location_concentration <- subset(AirQual,
+                                 select = c("ad.O3", "ad.NOx", "ad.NO",
+                                            "lu.O3", "lu.NOx", "lu.NO",
+                                            "sz.O3", "sz.NOx", "sz.NO"
+                                            )
+                                 )
+# Convert to Imperial Units
+location_weather[,1] <- location_weather[,1] * 1.8 + 32
+location_weather[,2] <- location_weather[,2] * 1.8 + 32
+location_weather[,3] <- location_weather[,3] * 2.2369362920544
+
+location_weather[,4] <- location_weather[,4] * 1.8 + 32
+location_weather[,5] <- location_weather[,5] * 1.8 + 32
+location_weather[,6] <- location_weather[,6] * 2.2369362920544
+
+location_weather[,7] <- location_weather[,7] * 1.8 + 32
+location_weather[,8] <- location_weather[,8] * 1.8 + 32
+location_weather[,9] <- location_weather[,9] * 2.2369362920544
+
+# Display mean temps for these locations
+summary(location_weather)
+par(mar=c(3,4,3,3))
+boxplot(location_weather,
+        horizontal = TRUE,
+        main = "Temperature (T), Dew Point (Td), and Wind Speed (WS) for\n 3 Locations in Switzerland in 2004",
+        las = 1
+)
+```
+
+Visual inspection of the box plots shows that, for the most part, temperatures and dew points were about the same at each location.  The stat that seems to have the largest difference between each of the three locations is the wind speed at each location.
+
+## Frequency of Concentrations
+Below is an analysis of the concentrations of polutants at each of the three locations.
+```{r}
+# Which location shows most frequent measurement of high concentraions
+hist(location_concentration$ad.O3,
+     col="red",
+     main = "Concentration of O3 at 3 Locations",
+     xlab = "O3 Concentration in PPB",
+     las=1
+     )
+hist(location_concentration$sz.O3, col="green", add=T)
+hist(location_concentration$lu.O3, col="blue", add=T)
+
+hist(location_concentration$ad.NOx,
+     col="red",
+     main = "Concentration of NOx at 3 Locations",
+     xlab = "NOx Concentration in PPB",
+     las=1)
+hist(location_concentration$sz.NOx, col="green", add=T)
+hist(location_concentration$lu.NOx, col="blue", add=T)
+
+hist(location_concentration$ad.NO,
+     col="red",
+     main = "Concentration of NO at 3 Locations",
+     xlab = "NO Concentration in PPB",
+     las=1)
+hist(location_concentration$sz.NO, col="green", add=T)
+hist(location_concentration$lu.NO, col="blue", add=T)
+```
+
+Visually, it appears that the location LU has the greatest frequency of low values for two out of the three polutants (NO, and NOx).  The location AD has the lowest concentration of O3 for the majority of these measurements.  This leads to the conclusion that, in general, the location SZ has more air polution than the other two locations.

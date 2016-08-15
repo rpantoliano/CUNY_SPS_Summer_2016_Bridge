@@ -1,0 +1,223 @@
+---
+title: "SPS 2016 Summer Bridge Data Science Math Final Project"
+author: "Richard Pantoliano Jr"
+date: "August 14, 2016"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Overview
+This project focuses on analyzing the hflights data set, which encompasses all flights that departed from Houston in 2011.
+
+The two statistics this analysis will focus on are the amount of time each flight spent in the air, AirTime, and the arrival time of each flight, ArrTime. 
+
+#Initialization
+The Commands below load all of the libraries and data used in the analysis. The variable x will represent the 3rd quartile of the AirTime data, and the variable y will represent the mean of the ArrTime data.
+
+
+```{r hflights x y}
+#install.packages("hflights")
+#install.packages("psych")
+#install.packages("Hmisc")
+#install.packages("MASS")
+#install.packages("Lmoments")
+
+require(psych)
+require(hflights)
+require(Hmisc)
+require(MASS)
+require(Lmoments)
+
+data(hflights)
+
+airsummary <- summary(hflights$AirTime)
+arrsummary <-summary(hflights$ArrTime)
+
+x <- as.integer(airsummary["3rd Qu."])
+y <- as.integer(arrsummary["Mean"])
+
+```
+
+## Probability
+
+a. The probability that the AirTime of a flight is > Q3 given that the ArrTime is greater than the mean is:
+```{r}
+#a. P(X>x | Y>y) = P(X>x & Y>y) / P(Y>y)
+yg <- length(which(hflights$ArrTime > y)) / length(hflights$ArrTime)
+
+xg_and_yg <- length(which(hflights$AirTime > x & hflights$ArrTime > y)) / length(hflights$AirTime)
+
+pa <- xg_and_yg / yg
+print(pa)
+```
+
+b. The probability that the AirTime of a flight is >  Q3 and that the ArrTime is greater than the mean is:
+```{r}
+#b. P(X>x, Y>y) = P(x>x & Y>y)
+pb <- xg_and_yg
+print(pb)
+```
+
+c. The probability that the AirTime of a flight is >  Q3 given that the ArrTime is greater than the mean is:
+```{r}
+#c. P(X<x | Y>y) = P(X<x & Y>y) / P(Y>y)
+xl <- length(which(hflights$AirTime < x)) / length(hflights$AirTime)
+xl_and_yg <- length(which(hflights$AirTime < x & hflights$ArrTime > y)) / length(hflights$AirTime)
+
+pc <- xl_and_yg / yg
+print(pc)
+```
+
+d. The probability that the AirTime of a flight is >  Q3 given that the ArrTime is < the mean is:
+```{r}
+#d. Since none was given, providing my own: P(X<x | Y<y) = P(X<x & Y<y) / P(Y<y)
+yl <- length(which(hflights$ArrTime < y)) / length(hflights$ArrTime)
+xl_and_yl <- length(which(hflights$AirTime < x & hflights$ArrTime < y)) / length(hflights$AirTime)
+
+pd <- xl_and_yl / yl
+print(pd)
+```
+
+Below, a matrix is constructed showing the counts of the listed events:
+```{r}
+#Count of x <= Q3 quartile and y <= Q2
+xle3rd_yle2nd <- length( which(hflights$AirTime <= x & hflights$ArrTime <= y))
+#print(xle3rd_yle2nd)
+
+#Count of x > Q3 quartile and y <= Q2
+xg3rd_yle2nd <- length( which(hflights$AirTime > x & hflights$ArrTime <= y))
+#print(xg3rd_yle2nd)
+
+#Count of x <= Q3 quartile and y > Q2
+xle3rd_yg2nd <- length( which(hflights$AirTime <= x & hflights$ArrTime > y))
+#print(xle3rd_yg2nd)
+
+#Count of x > Q3 quartile and y > Q2
+xg3rd_yg2nd <- length( which(hflights$AirTime > x & hflights$ArrTime > y))
+#print(xg3rd_yg2nd)
+
+t <- matrix(
+    c(xle3rd_yle2nd,xg3rd_yle2nd, xle3rd_yle2nd + xg3rd_yle2nd,
+      xle3rd_yg2nd, xg3rd_yg2nd, xle3rd_yg2nd + xg3rd_yg2nd,
+      xle3rd_yle2nd + xle3rd_yg2nd, xg3rd_yle2nd + xg3rd_yg2nd,
+      xle3rd_yle2nd + xg3rd_yle2nd+ xle3rd_yg2nd + xg3rd_yg2nd),
+    ncol=3)
+rownames(t) <- c("<=3d quartile", ">3d quartile", "total")
+colnames(t) <- c("<=2d quartile", ">2d quartile", "total")
+print(t)
+
+```
+
+This seems to show that the data is not independant.  Below,  let A be the new variable counting those observations above the 3d quartile for X, and let B be the new variable counting those observations for the 2d quartile for Y. The probability of P(A|B) if they are independent is given by prob_1.  The probability of P(A|B) if they are not independent is given by prob_2.
+
+```{r}
+# Test if P(A|B) = P(A)P(B) vs P(A|B) = P(A and B) / P(B)
+prob_1 <- xl * yl # Probability if they are independant
+
+# Probability if they are not independant
+prob_2 <- length(which(hflights$AirTime < x & hflights$ArrTime < y))/  length(hflights$AirTime)
+
+print(prob_1)
+print(prob_2)
+```
+
+Using the Chi-squared test of independence:
+```{r}
+# Test for independance
+print(chisq.test(hflights$AirTime, hflights$ArrTime))
+```
+This extremely small p-value indicates that the variables are dependant
+
+# Descriptive and Inferential Statistics
+Univariate info for AirTime:
+```{r}
+print(summary(hflights$AirTime))
+print(describe(hflights$AirTime))
+
+boxplot(hflights$AirTime,
+        main = "Boxplot of Flight Air Time", 
+        ylab="Total time in air",
+        las=1
+        )
+
+```
+
+Univariate info for ArrTime:
+```{r}
+print(summary(hflights$ArrTime))
+print(describe(hflights$ArrTime))
+boxplot(hflights$ArrTime,
+        main = "Boxplot of Flight Arrival Time", 
+        ylab="Arrival Time",
+        las=1
+)
+```
+
+Below is a scatterplot of the two variables
+```{r}
+plot(hflights$AirTime, hflights$ArrTime,
+     main="Comparison of Time in Air vs Arrival Time",
+     xlab="Time in Air",
+     ylab="Arrival Time",
+     las=1
+     )
+```
+
+Below is the test with 95% CI of the difference in the mean of the two variables.  
+
+```{r}
+t.test(hflights$AirTime, hflights$ArrTime, paird=TRUE, conf.level=.95)
+```
+
+Below is the derived correlation matrix for the two variables.  
+```{r}
+data_subset <- subset(hflights, select=c("AirTime", "ArrTime"))
+cor_matrix <- cor(data_subset, use="pairwise.complete.obs")
+print(cor_matrix)
+```
+
+Below is the test with CI of 99% that the correlation between these variables is 0.
+```{r}
+cor.test(hflights$AirTime, hflights$ArrTime, conf.level=.99)
+```
+This indicates that the correlation is not zero.  That is, there is correlation between the variables.
+
+
+# Linear Algebra
+Inversion of the correlation matrix:
+```{r}
+inv_matrix <- solve(cor_matrix)
+print(inv_matrix)
+```
+
+Below, both matrices are multiplied together in either order.
+```{r}
+print(inv_matrix%*%cor_matrix)
+print(cor_matrix%*%inv_matrix)
+```
+Since the matricies are inverses, multiplying them in either order results in the identity matrix, which is the very definition of inverse matricies.
+
+# Calculus-based Probability and statistics
+We were asked to apply an exponential distribution to the skewed variable of the analyzed data.  In this case, we are focusing on the AirTime.
+
+```{r}
+airTime_clean <- na.omit(hflights$AirTime)
+airrate = fitdistr(airTime_clean, densfun = "exponential")
+print(airrate)
+```
+
+We can use the rate calculated from fitting the exponential function to the airTime data to randomly generate 1000 samples and create a histogram of that data.
+
+```{r}
+hist(rexp(1000,rate = airrate$estimate))
+```
+
+Below is the histogram of the original data.
+```{r}
+hist(airTime_clean)
+```
+
+As can be seen from the randomly generated data, the frequencies start with a peak at 0 and steadily decrease.  The recorded data increases up to the 150 minute mark, then decreases.  This stark difference indicates that the exponential function is a poor fit for modeling the observed data.
